@@ -1,6 +1,11 @@
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
-import { HOLD_AFTER_LAST_MS, REVEAL_INTERVAL_MS, API } from "../lib/constants";
+import {
+	HOLD_AFTER_LAST_MS,
+	REVEAL_INTERVAL_MS,
+	API,
+	MAX_ROUNDS,
+} from "../lib/constants";
 
 export default function Home() {
 	const [cells, setCells] = useState(Array(9).fill(false));
@@ -37,7 +42,7 @@ export default function Home() {
 		// if the current round has been completed
 		if (correctClicks === patternLength) {
 			// check if it is the final round
-			if (patternLength === 9) {
+			if (patternLength === MAX_ROUNDS) {
 				setWin(true);
 				return;
 			}
@@ -67,6 +72,7 @@ export default function Home() {
 		const flagsArr = Array(9).fill(false);
 		let flaggedCount = 0;
 		// randomly select "len" number of green cells
+
 		while (flaggedCount < len) {
 			const flag = Math.floor(Math.random() * 9);
 			if (flagsArr[flag] === true) {
