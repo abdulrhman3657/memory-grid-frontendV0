@@ -28,6 +28,16 @@ export default function Home() {
 	// array that store setTimeout timer accross renders
 	const timersRef = useRef([]);
 
+	const shuffleArray = (arr) => {
+		const shuffledArr = [...arr];
+		for (let i = shuffledArr.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[shuffledArr[i], shuffledArr[j]] = [shuffledArr[j], shuffledArr[i]]
+		}
+
+		return shuffledArr;
+	};
+
 	const resetGrid = useCallback((len = STARTING_LENGTH) => {
 		setCorrectClicks(0);
 		setCells(Array(MAX_ROUNDS).fill(false));
@@ -72,16 +82,15 @@ export default function Home() {
 					indices.push(index);
 				}
 			});
+			const shuffledIndices = shuffleArray(indices)
 
 			// randomly shuffle reveal order
-			indices.sort(() => Math.random() - 0.5);
-
-			setFlagsOrder(indices);
+			setFlagsOrder(shuffledIndices);
 
 			// Ensures all cells are black before starting reveals
 			setCells(Array(GRID_SIZE).fill(false));
 
-			indices.forEach((cellIndex, step) => {
+			shuffledIndices.forEach((cellIndex, step) => {
 				const t = setTimeout(() => {
 					setCells((prev) => {
 						const newGrid = [...prev];
