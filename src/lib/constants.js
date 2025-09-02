@@ -1,0 +1,5 @@
+const REVEAL_INTERVAL_MS = 500;
+const HOLD_AFTER_LAST_MS = 600;
+const API = import.meta.env.VITE_API_URL;
+
+export { REVEAL_INTERVAL_MS, HOLD_AFTER_LAST_MS, API };
