@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
 	HOLD_AFTER_LAST_MS,
 	REVEAL_INTERVAL_MS,
@@ -29,11 +29,82 @@ export default function Home() {
 	const timersRef = useRef([]);
 
 	// stop/interrupt all the timers in timersRef array
-	const clearAllTimers = () => {
+	const clearAllTimers = useCallback(() => {
 		timersRef.current.forEach(clearTimeout);
 		timersRef.current = [];
-	};
+	}, []);
 
+	const startGame = useCallback(
+		(len = patternLength) => {
+			// clear all the timers from the previous round
+			clearAllTimers();
+
+			setFail(false);
+
+			const flagsArr = Array(GRID_SIZE).fill(false);
+			let flaggedCount = 0;
+			// randomly select "len" number of green cells
+
+			while (flaggedCount < len) {
+				const flag = Math.floor(Math.random() * GRID_SIZE);
+				if (flagsArr[flag] === true) {
+					continue;
+				}
+				flaggedCount++;
+				flagsArr[flag] = true;
+			}
+
+			setFlags(flagsArr);
+			setGameStarted(true);
+
+			// set the indices of the green cells
+			const indices = [];
+			flagsArr.forEach((value, index) => {
+				if (value) {
+					indices.push(index);
+				}
+			});
+
+			// randomly shuffle reveal order
+			indices.sort(() => Math.random() - 0.5);
+
+			setFlagsOrder(indices);
+
+			// Ensures all cells are black before starting reveals
+			setCells(Array(GRID_SIZE).fill(false));
+
+			indices.forEach((cellIndex, step) => {
+				const t = setTimeout(() => {
+					setCells((prev) => {
+						const newGrid = [...prev];
+						newGrid[cellIndex] = true;
+						return newGrid;
+					});
+				}, step * REVEAL_INTERVAL_MS); // reveal green cells "REVEAL_INTERVAL_MS" apart
+
+				// push the current round timer to the timers array
+				// each round have "len" number of timers
+				// can be used to reset the timers if the player falis or resets
+				timersRef.current.push(t);
+			});
+
+			// the time it takes until the last green cell is revealed
+			const totalRevealTime = (indices.length - 1) * REVEAL_INTERVAL_MS;
+			// Add a little hold time so the last cell stays visible
+			// for a short while before disappearing
+			const clearAt = totalRevealTime + HOLD_AFTER_LAST_MS;
+
+			// clears all green cells after the pattern
+			// for the current round has been revealed
+			const clearTimer = setTimeout(() => {
+				setCells(Array(GRID_SIZE).fill(false));
+			}, clearAt);
+
+			// inturrupt the timer in case of reset or fail
+			timersRef.current.push(clearTimer);
+		},
+		[patternLength]
+	);
 	// // delete later
 	// useEffect(() => {
 	//   // clear all timers before the component unmounts
@@ -43,90 +114,21 @@ export default function Home() {
 
 	useEffect(() => {
 		// if the current round has been completed
-		if (win || !isRoundOver || !gameStarted) return
+		if (win || !isRoundOver || !gameStarted) return;
 
-			// add one green cell
-			const nextLen = patternLength + 1;
+		// add one green cell
+		const nextLen = patternLength + 1;
 
-			// reset before next round
-			setCorrectClicks(0);
-			setCells(Array(MAX_ROUNDS).fill(false));
-			setFlags(Array(MAX_ROUNDS).fill(false));
-			setFlagsOrder([]);
-			setPatternLength(nextLen);
+		// reset before next round
+		setCorrectClicks(0);
+		setCells(Array(MAX_ROUNDS).fill(false));
+		setFlags(Array(MAX_ROUNDS).fill(false));
+		setFlagsOrder([]);
+		setPatternLength(nextLen);
 
-			startGame(nextLen);
+		startGame(nextLen);
 		// check for the next round when (correctClicks) changes
-	}, [isRoundOver]);
-
-	const startGame = (len = patternLength) => {
-		// clear all the timers from the previous round
-		clearAllTimers();
-
-		setFail(false);
-
-		const flagsArr = Array(GRID_SIZE).fill(false);
-		let flaggedCount = 0;
-		// randomly select "len" number of green cells
-
-		while (flaggedCount < len) {
-			const flag = Math.floor(Math.random() * GRID_SIZE);
-			if (flagsArr[flag] === true) {
-				continue;
-			}
-			flaggedCount++;
-			flagsArr[flag] = true;
-		}
-
-		setFlags(flagsArr);
-		setGameStarted(true);
-
-		// set the indices of the green cells
-		const indices = [];
-		flagsArr.forEach((value, index) => {
-			if (value) {
-				indices.push(index);
-			}
-		});
-
-		// randomly shuffle reveal order
-		indices.sort(() => Math.random() - 0.5);
-
-		setFlagsOrder(indices);
-
-		// Ensures all cells are black before starting reveals
-		setCells(Array(GRID_SIZE).fill(false));
-
-		indices.forEach((cellIndex, step) => {
-			const t = setTimeout(() => {
-				setCells((prev) => {
-					const newGrid = [...prev];
-					newGrid[cellIndex] = true;
-					return newGrid;
-				});
-			}, step * REVEAL_INTERVAL_MS); // reveal green cells "REVEAL_INTERVAL_MS" apart
-
-			// push the current round timer to the timers array
-			// each round have "len" number of timers
-			// can be used to reset the timers if the player falis or resets
-			timersRef.current.push(t);
-		});
-
-		// the time it takes until the last green cell is revealed
-		const totalRevealTime = (indices.length - 1) * REVEAL_INTERVAL_MS;
-		// Add a little hold time so the last cell stays visible
-		// for a short while before disappearing
-		const clearAt = totalRevealTime + HOLD_AFTER_LAST_MS;
-
-		// clears all green cells after the pattern
-		// for the current round has been revealed
-		const clearTimer = setTimeout(() => {
-			setCells(Array(GRID_SIZE).fill(false));
-		}, clearAt);
-
-		// inturrupt the timer in case of reset or fail
-		timersRef.current.push(clearTimer);
-	};
+	}, [isRoundOver, gameStarted, win, patternLength, startGame]);
 
 	const clickCell = (index) => {
 		if (!gameStarted || win || fail) return;
