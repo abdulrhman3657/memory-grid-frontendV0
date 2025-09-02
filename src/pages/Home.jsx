@@ -10,15 +10,16 @@ import {
 } from "../lib/constants";
 
 export default function Home() {
-	const [cells, setCells] = useState(Array(STARTING_LENGTH).fill(false));
-	const [flags, setFlags] = useState(Array(STARTING_LENGTH).fill(false));
+	const [cells, setCells] = useState(Array(GRID_SIZE).fill(false));
+	const [flags, setFlags] = useState(Array(GRID_SIZE).fill(false));
 	const [fail, setFail] = useState(false);
-	const [win, setWin] = useState(false);
 	const [correctClicks, setCorrectClicks] = useState(0);
 	const [gameStarted, setGameStarted] = useState(false);
 	const [flagsOrder, setFlagsOrder] = useState([]);
 	const [patternLength, setPatternLength] = useState(STARTING_LENGTH);
 	const [showInstructions, setShowInstructions] = useState(false);
+	const isRoundOver = correctClicks === patternLength;
+	const win = correctClicks === patternLength && patternLength === MAX_ROUNDS;
 
 	useEffect(() => {
 		axios.get(API);
@@ -42,12 +43,7 @@ export default function Home() {
 
 	useEffect(() => {
 		// if the current round has been completed
-		if (correctClicks === patternLength) {
-			// check if it is the final round
-			if (patternLength === MAX_ROUNDS) {
-				setWin(true);
-				return;
-			}
+		if (win || !isRoundOver || !gameStarted) return
 
 			// add one green cell
 			const nextLen = patternLength + 1;
@@ -60,16 +56,14 @@ export default function Home() {
 			setPatternLength(nextLen);
 
 			startGame(nextLen);
-		}
 		// check for the next round when (correctClicks) changes
-	}, [correctClicks]);
+	}, [isRoundOver]);
 
 	const startGame = (len = patternLength) => {
 		// clear all the timers from the previous round
 		clearAllTimers();
 
 		setFail(false);
-		setWin(false);
 
 		const flagsArr = Array(GRID_SIZE).fill(false);
 		let flaggedCount = 0;
@@ -201,7 +195,6 @@ export default function Home() {
 							setCells(Array(GRID_SIZE).fill(false));
 							setFlags(Array(GRID_SIZE).fill(false));
 							setFail(false);
-							setWin(false);
 							setCorrectClicks(0);
 							setGameStarted(false);
 							setFlagsOrder([]);
