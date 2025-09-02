@@ -28,6 +28,14 @@ export default function Home() {
 	// array that store setTimeout timer accross renders
 	const timersRef = useRef([]);
 
+	const resetGrid = useCallback((len = STARTING_LENGTH) => {
+		setCorrectClicks(0);
+		setCells(Array(MAX_ROUNDS).fill(false));
+		setFlags(Array(MAX_ROUNDS).fill(false));
+		setFlagsOrder([]);
+		setPatternLength(len);
+	}, []);
+
 	// stop/interrupt all the timers in timersRef array
 	const clearAllTimers = useCallback(() => {
 		timersRef.current.forEach(clearTimeout);
@@ -103,7 +111,7 @@ export default function Home() {
 			// inturrupt the timer in case of reset or fail
 			timersRef.current.push(clearTimer);
 		},
-		[patternLength]
+		[patternLength, clearAllTimers]
 	);
 	// // delete later
 	// useEffect(() => {
@@ -120,15 +128,10 @@ export default function Home() {
 		const nextLen = patternLength + 1;
 
 		// reset before next round
-		setCorrectClicks(0);
-		setCells(Array(MAX_ROUNDS).fill(false));
-		setFlags(Array(MAX_ROUNDS).fill(false));
-		setFlagsOrder([]);
-		setPatternLength(nextLen);
-
+		resetGrid(nextLen);
 		startGame(nextLen);
 		// check for the next round when (correctClicks) changes
-	}, [isRoundOver, gameStarted, win, patternLength, startGame]);
+	}, [isRoundOver, gameStarted, win, patternLength, startGame, resetGrid]);
 
 	const clickCell = (index) => {
 		if (!gameStarted || win || fail) return;
@@ -194,13 +197,9 @@ export default function Home() {
 					<button
 						onClick={() => {
 							clearAllTimers();
-							setCells(Array(GRID_SIZE).fill(false));
-							setFlags(Array(GRID_SIZE).fill(false));
+							resetGrid();
 							setFail(false);
-							setCorrectClicks(0);
 							setGameStarted(false);
-							setFlagsOrder([]);
-							setPatternLength(STARTING_LENGTH);
 						}}
 						className="px-4 py-2 rounded-xl shadow bg-white hover:bg-gray-50 border text-sm"
 					>
