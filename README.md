@@ -1,12 +1,43 @@
-# React + Vite
+# Grid Memory Game
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple **3x3 grid memory game** built with **React**, **Vite**, and **Tailwind CSS**. The goal is to memorize the sequence of highlighted cells and click them in the correct order.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- Randomized green cell patterns that increase in length each round.
+- Strict order clicking — one mistake ends the game.
+- Win by completing all rounds (up to 9 cells).
+- Start, Reset, and How to Play buttons.
+- Animated reveal of cells.
+- Foggy glass modal for instructions.
+- Fully responsive layout.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## How to Play
+
+1. Click **Start** to begin a round.  
+2. Watch the green cells light up in sequence.  
+3. Memorize the order.  
+4. Click the cells in the exact same order.  
+5. Complete all rounds to **win**.  
+6. Clicking the wrong cell ends the game (**fail**).
+
+---
+
+## Installation
+
+Make sure you have [Node.js](https://nodejs.org/) installed.
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/grid-memory-game.git
+cd grid-memory-game
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
