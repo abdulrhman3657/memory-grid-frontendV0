@@ -5,17 +5,19 @@ import {
 	REVEAL_INTERVAL_MS,
 	API,
 	MAX_ROUNDS,
+	GRID_SIZE,
+	STARTING_LENGTH,
 } from "../lib/constants";
 
 export default function Home() {
-	const [cells, setCells] = useState(Array(9).fill(false));
-	const [flags, setFlags] = useState(Array(9).fill(false));
+	const [cells, setCells] = useState(Array(STARTING_LENGTH).fill(false));
+	const [flags, setFlags] = useState(Array(STARTING_LENGTH).fill(false));
 	const [fail, setFail] = useState(false);
 	const [win, setWin] = useState(false);
 	const [correctClicks, setCorrectClicks] = useState(0);
 	const [gameStarted, setGameStarted] = useState(false);
 	const [flagsOrder, setFlagsOrder] = useState([]);
-	const [patternLength, setPatternLength] = useState(3);
+	const [patternLength, setPatternLength] = useState(STARTING_LENGTH);
 	const [showInstructions, setShowInstructions] = useState(false);
 
 	useEffect(() => {
@@ -52,8 +54,8 @@ export default function Home() {
 
 			// reset before next round
 			setCorrectClicks(0);
-			setCells(Array(9).fill(false));
-			setFlags(Array(9).fill(false));
+			setCells(Array(MAX_ROUNDS).fill(false));
+			setFlags(Array(MAX_ROUNDS).fill(false));
 			setFlagsOrder([]);
 			setPatternLength(nextLen);
 
@@ -69,12 +71,12 @@ export default function Home() {
 		setFail(false);
 		setWin(false);
 
-		const flagsArr = Array(9).fill(false);
+		const flagsArr = Array(GRID_SIZE).fill(false);
 		let flaggedCount = 0;
 		// randomly select "len" number of green cells
 
 		while (flaggedCount < len) {
-			const flag = Math.floor(Math.random() * 9);
+			const flag = Math.floor(Math.random() * GRID_SIZE);
 			if (flagsArr[flag] === true) {
 				continue;
 			}
@@ -99,7 +101,7 @@ export default function Home() {
 		setFlagsOrder(indices);
 
 		// Ensures all cells are black before starting reveals
-		setCells(Array(9).fill(false));
+		setCells(Array(GRID_SIZE).fill(false));
 
 		indices.forEach((cellIndex, step) => {
 			const t = setTimeout(() => {
@@ -125,7 +127,7 @@ export default function Home() {
 		// clears all green cells after the pattern
 		// for the current round has been revealed
 		const clearTimer = setTimeout(() => {
-			setCells(Array(9).fill(false));
+			setCells(Array(GRID_SIZE).fill(false));
 		}, clearAt);
 
 		// inturrupt the timer in case of reset or fail
@@ -196,14 +198,14 @@ export default function Home() {
 					<button
 						onClick={() => {
 							clearAllTimers();
-							setCells(Array(9).fill(false));
-							setFlags(Array(9).fill(false));
+							setCells(Array(GRID_SIZE).fill(false));
+							setFlags(Array(GRID_SIZE).fill(false));
 							setFail(false);
 							setWin(false);
 							setCorrectClicks(0);
 							setGameStarted(false);
 							setFlagsOrder([]);
-							setPatternLength(3);
+							setPatternLength(STARTING_LENGTH);
 						}}
 						className="px-4 py-2 rounded-xl shadow bg-white hover:bg-gray-50 border text-sm"
 					>
